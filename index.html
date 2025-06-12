@@ -15,6 +15,7 @@
             --card-bg: #ffffff;
             --border-radius: 8px;
             --box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            --highlight-bg: #fef5e7; /* Light orange for highlighting */
         }
 
         body {
@@ -195,6 +196,17 @@
             color: #bdc3c7;
             font-size: 0.9em;
         }
+        
+        .tooltip .tooltip-text .glossary-link {
+            display: block;
+            margin-top: 8px;
+            color: #f1c40f;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .tooltip .tooltip-text .glossary-link:hover {
+            text-decoration: underline;
+        }
 
         .tooltip:hover .tooltip-text {
             visibility: visible;
@@ -223,7 +235,7 @@
         .modal {
             display: none;
             position: fixed;
-            z-index: 101;
+            z-index: 200;
             left: 0;
             top: 0;
             width: 100%;
@@ -278,46 +290,36 @@
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
         }
-
+        
         #glossary-search {
             width: 100%;
             padding: 12px;
             margin-bottom: 2rem;
+            font-size: 1.1em;
             border: 1px solid #ccc;
             border-radius: var(--border-radius);
-            font-size: 1.1em;
             box-sizing: border-box;
         }
-        
+
         #glossary-list dt {
             font-weight: bold;
             color: var(--primary-color);
             margin-top: 1.2rem;
             font-size: 1.2em;
-            padding: 5px;
+            padding: 8px;
+            transition: background-color 0.3s;
             border-radius: 4px;
         }
         #glossary-list dd {
             margin-left: 2rem;
             margin-bottom: 0.8rem;
-            border-left: 3px solid #eee;
-            padding-left: 15px;
+            padding: 8px;
+            transition: background-color 0.3s;
+            border-radius: 4px;
         }
-        
-        .usage-section {
-            margin-top: 1em;
-            font-size: 0.95em;
-        }
-        .usage-section strong {
-            color: var(--secondary-color);
-        }
-        .usage-section a {
-            color: var(--accent-color);
-            text-decoration: none;
-            margin-right: 15px;
-        }
-        .usage-section a:hover {
-            text-decoration: underline;
+
+        .highlight {
+            background-color: var(--highlight-bg);
         }
         
         .ref {
@@ -364,7 +366,7 @@
         <div id="home-page" class="page active">
             <h2>Willkommen!</h2>
             <p>Diese Website wurde entwickelt, um Ihnen beim Verstehen der Übungsaufgaben zur Algebra zu helfen. Statt nur die Lösungen zu lesen, können Sie hier jeden Schritt interaktiv nachvollziehen, Definitionen nachschlagen und die zugrundeliegende Theorie direkt aus dem Skript einsehen.</p>
-            <p>Wählen Sie eine Aufgabe aus, um zu beginnen, oder durchsuchen Sie das interaktive Glossar.</p>
+            <p>Wählen Sie eine Aufgabe aus, um zu beginnen:</p>
             <div class="task-list">
                 <div class="task-card" data-task="5">Aufgabe 5</div>
                 <div class="task-card" data-task="6">Aufgabe 6</div>
@@ -390,7 +392,6 @@
         <div id="glossary-page" class="page">
             <a href="#home" class="back-button">&larr; Zurück zur Übersicht</a>
             <h2>Glossar</h2>
-            <p>Suchen Sie nach einem Begriff oder durchstöbern Sie die Liste. Jeder Eintrag verweist auf die Aufgaben, in denen der Begriff verwendet wird.</p>
             <input type="text" id="glossary-search" placeholder="Begriff suchen...">
             <dl id="glossary-list"></dl>
         </div>
@@ -404,17 +405,18 @@
     </div>
 
 <script>
+// Data for the entire application is stored here
 const tasks = {
     '5': {
         problemHTML: `
-            <p>Sei L/K eine Körpererweiterung. Wir definieren den algebraischen Abschluss von K in L als Alg<sub>K</sub>(L) := {x ∈ L | x ist <span class="tooltip">algebraisch über K</span>}.</p>
+            <p>Sei L/K eine Körpererweiterung. Wir definieren den algebraischen Abschluss von K in L als Alg<sub>K</sub>(L) := {x ∈ L | x ist algebraisch über K}.</p>
             <ol>
-                <li>Zeigen Sie, dass Alg<sub>K</sub>(L) ein <span class="tooltip">Teilkörper</span> von L ist.</li>
+                <li>Zeigen Sie, dass Alg<sub>K</sub>(L) ein Teilkörper von L ist.</li>
                 <li>Es sei L = ℚ(√5)(X)[Y]/(Y³ − X² − X).
                     <ol type="a">
-                        <li>Zeigen Sie, dass L ein Körper ist. (Hinweis: <span class="tooltip">Eisenstein-Kriterium</span>.)</li>
+                        <li>Zeigen Sie, dass L ein Körper ist. (Hinweis: Eisenstein Kriterium.)</li>
                         <li>Bestimmen Sie den Erweiterungsgrad [L : ℚ(X)] von L über ℚ(X).</li>
-                        <li>* Bestimmen Sie den <span class="tooltip">algebraischen Abschluss</span> K := Alg<sub>ℚ</sub>(L) von ℚ in L.</li>
+                        <li>* Bestimmen Sie den algebraischen Abschluss K := Alg<sub>ℚ</sub>(L) von ℚ in L.</li>
                         <li>* Zeigen Sie, dass L/K nicht rein transzendent ist.</li>
                     </ol>
                 </li>
@@ -470,8 +472,8 @@ const tasks = {
     },
     '6': {
         problemHTML: `
-            <p>Sei E/K eine Körpererweiterung und E sei <span class="tooltip">algebraisch abgeschlossen</span>.</p>
-            <p>Zeigen Sie: Alg<sub>K</sub>(E) ist ein <span class="tooltip">algebraischer Abschluss</span> von K.</p>`,
+            <p>Sei E/K eine Körpererweiterung und E sei algebraisch abgeschlossen.</p>
+            <p>Zeigen Sie: Alg<sub>K</sub>(E) ist ein algebraischer Abschluss von K.</p>`,
         deepDiveHTML: `
             <div class="step">
                 <h4>Ziel: Zeigen, dass F := Alg<sub>K</sub>(E) ein algebraischer Abschluss von K ist.</h4>
@@ -496,13 +498,13 @@ const tasks = {
                     <li>Die Erweiterung F(z)/F ist algebraisch, da z eine Nullstelle von p(x)∈F[x] ist.</li>
                 </ul>
                 <p>Da Algebraizität transitiv ist, ist auch die Gesamterweiterung F(z)/K algebraisch.<button class="why-button" data-explanation="Das ist <b>Lemma 1.17 (Transitivität der Algebraizität)</b>.<blockquote><p>Ist (L/K) algebraisch und (F/L) algebraisch, so ist (F/K) algebraisch.</p></blockquote><i>Beweisidee:</i> Ein Element α ∈ F ist Nullstelle eines Polynoms mit Koeffizienten in L. Diese Koeffizienten sind selbst algebraisch über K. Man betrachtet dann die Erweiterung, die von α und all diesen Koeffizienten erzeugt wird. Diese ist endlich über K, also ist α algebraisch über K."></button></p>
-                <p>Das bedeutet, jedes Element in F(z), insbesondere <code class="math">z</code> selbst, ist <span class="tooltip">algebraisch über K</span>. Da <code class="math">z</code> außerdem in E liegt, erfüllt es die Definition von F: <code class="math">z ∈ {x ∈ E | x ist algebraisch über K} = F</code>.</p>
+                <p>Das bedeutet, jedes Element in F(z), insbesondere <code class="math">z</code> selbst, ist algebraisch über K. Da <code class="math">z</code> außerdem in E liegt, erfüllt es die Definition von F: <code class="math">z ∈ {x ∈ E | x ist algebraisch über K} = F</code>.</p>
                 <p>Somit hat p(x) eine Nullstelle in F, und F ist algebraisch abgeschlossen.</p>
             </div>`,
     },
     '7': {
         problemHTML: `
-            <p>Bestimmen Sie den <span class="tooltip">Zerfällungskörper</span> E von f ∈ ℚ[X] sowie [E : ℚ] im Fall</p>
+            <p>Bestimmen Sie den Zerfällungskörper E von f ∈ ℚ[X] sowie [E : ℚ] im Fall</p>
             <ol>
                 <li>f(X) = X³ − 1.</li>
                 <li>f(X) = X³ − 2.</li>
@@ -533,7 +535,7 @@ const tasks = {
             <div class="step">
                 <p>Das Polynom ist irreduzibel über ℚ (nach rationalem Nullstellentest gibt es keine linearen Faktoren).</p>
                 <p>Sei <code class="math">z</code> eine Nullstelle. Laut Hinweis ist auch <code class="math">z² - 2</code> eine Nullstelle. Da alle Nullstellen durch Polynome in <code class="math">z</code> ausgedrückt werden können, liegen alle Nullstellen bereits im Körper <code class="math">ℚ(z)</code>.</p>
-                <p>Dies bedeutet, dass <code class="math">ℚ(z)</code> bereits der Zerfällungskörper ist. Eine solche Erweiterung nennt man <span class="tooltip">normal</span>. <br>
+                <p>Dies bedeutet, dass <code class="math">ℚ(z)</code> bereits der Zerfällungskörper ist. Eine solche Erweiterung nennt man <span class="tooltip">normale Erweiterung</span>. <br>
                 <code class="math">E = ℚ(z)</code>.</p>
                 <p>Der Grad ist der Grad des Minimalpolynoms von z, also <code class="math">deg(f)</code>.<br>
                 <code class="math">[E : ℚ] = [ℚ(z) : ℚ] = 3</code>.</p>
@@ -583,7 +585,7 @@ const tasks = {
 };
 
 const definitions = {
-    'teilkörper': {
+    'definition eines teilkörpers': {
         text: 'Eine Teilmenge U eines Körpers L heißt Teilkörper, wenn U selbst mit den von L induzierten Operationen ein Körper ist. Das bedeutet, 1 ∈ U, und U ist abgeschlossen unter Addition, Multiplikation und der Bildung von multiplikativen Inversen für Elemente ≠ 0.',
         ref: '(Vgl. Def. 1.9, S. 8)',
     },
@@ -599,7 +601,7 @@ const definitions = {
         text: 'Für einen Turm von Körpererweiterungen F ⊃ E ⊃ K gilt: [F:K] = [F:E] * [E:K].',
         ref: '(Satz 1.10, S. 8)',
     },
-    'algebraischer abschluss': {
+    'definition des algebraischen abschlusses': {
         text: "Ein Erweiterungskörper E' von K heißt algebraischer Abschluss von K, wenn (i) E' algebraisch abgeschlossen ist und (ii) die Erweiterung E'/K algebraisch ist.",
         ref: '(Def. 1.30, S. 14)',
     },
@@ -611,45 +613,53 @@ const definitions = {
         text: 'Der Zerfällungskörper eines Polynoms f(t) über K ist der kleinste Erweiterungskörper E von K, über dem f(t) in Linearfaktoren zerfällt.',
         ref: '(Def. 1.24, S. 13)',
     },
-    'normal': {
+    'normale erweiterung': {
         text: 'Eine algebraische Erweiterung E/K heißt normal, wenn jedes irreduzible Polynom in K[t], das eine Nullstelle in E hat, bereits in E[t] in Linearfaktoren zerfällt.',
         ref: '(Satz 1.50, S. 20)'
     }
 };
 
+// --- Application Logic ---
 document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.querySelector('main');
     const navLinks = document.querySelectorAll('.nav-link');
     const modal = document.getElementById('explanation-modal');
     const closeModal = document.querySelector('.close-button');
     const glossarySearch = document.getElementById('glossary-search');
+    const glossaryList = document.getElementById('glossary-list');
 
+    // --- Routing ---
     function handleRouting() {
-        const hash = window.location.hash || '#home';
+        const url = new URL(window.location);
+        const hash = url.hash || '#home';
         
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
         navLinks.forEach(link => link.classList.remove('active'));
 
-        const activePage = document.querySelector(hash);
-        const activeLink = document.querySelector(`nav a[href="${hash}"]`);
+        let activePageId = '';
+        let activeNavLinkHref = '';
 
-        if (activePage) {
-            activePage.classList.add('active');
-        } else {
-            const taskMatch = hash.match(/^#task-(\d+)$/);
-            if (taskMatch) {
-                const taskId = taskMatch[1];
-                document.getElementById('task-page').classList.add('active');
-                loadTask(taskId);
-            } else {
-                 document.getElementById('home-page').classList.add('active');
-                 document.querySelector('nav a[href="#home"]').classList.add('active');
+        if (hash.startsWith('#task-')) {
+            activePageId = 'task-page';
+            activeNavLinkHref = '#home'; // Keep "Übersicht" active for tasks
+            const taskId = hash.substring(6);
+            loadTask(taskId);
+        } else if (hash.startsWith('#glossary')) {
+            activePageId = 'glossary-page';
+            activeNavLinkHref = '#glossary';
+            // Check for term to highlight
+            const params = new URLSearchParams(url.search);
+            const termToHighlight = params.get('term');
+            if (termToHighlight) {
+                highlightGlossaryTerm(decodeURIComponent(termToHighlight));
             }
+        } else {
+            activePageId = 'home-page';
+            activeNavLinkHref = '#home';
         }
-        
-        if (activeLink) {
-            activeLink.classList.add('active');
-        }
+
+        document.getElementById(activePageId).classList.add('active');
+        document.querySelector(`nav a[href="${activeNavLinkHref}"]`).classList.add('active');
     }
 
     function loadTask(taskId) {
@@ -663,7 +673,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadGlossary() {
-        const glossaryList = document.getElementById('glossary-list');
         glossaryList.innerHTML = '';
         const sortedKeys = Object.keys(definitions).sort((a, b) => a.localeCompare(b));
         
@@ -671,47 +680,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const def = definitions[key];
             const dt = document.createElement('dt');
             dt.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+            dt.dataset.term = key;
             
             const dd = document.createElement('dd');
             dd.innerHTML = `${def.text} <span class="ref">${def.ref}</span>`;
-            
-            // --- NEW: Find usage in tasks ---
-            const usageLinks = [];
-            for (const taskId in tasks) {
-                // A robust way to check for usage is to see if a tooltip for this key exists in the task's HTML
-                const usagePattern = new RegExp(`<span class="tooltip">${key.replace(/ /g, '\\s*')}</span>`, 'i');
-                if (tasks[taskId].problemHTML.match(usagePattern) || tasks[taskId].deepDiveHTML.match(usagePattern)) {
-                    usageLinks.push(`<a href="#task-${taskId}">Aufgabe ${taskId}</a>`);
-                }
-            }
-            
-            if (usageLinks.length > 0) {
-                const usageDiv = document.createElement('div');
-                usageDiv.classList.add('usage-section');
-                usageDiv.innerHTML = `<strong>Verwendung in:</strong> ${usageLinks.join('')}`;
-                dd.appendChild(usageDiv);
-            }
 
             glossaryList.appendChild(dt);
             glossaryList.appendChild(dd);
-        });
-    }
-
-    function filterGlossary() {
-        const filter = glossarySearch.value.toLowerCase();
-        const glossaryItems = document.querySelectorAll('#glossary-list dt');
-        
-        glossaryItems.forEach(dt => {
-            const dd = dt.nextElementSibling;
-            const term = dt.textContent.toLowerCase();
-            const definition = dd.textContent.toLowerCase();
-            if (term.includes(filter) || definition.includes(filter)) {
-                dt.style.display = '';
-                dd.style.display = '';
-            } else {
-                dt.style.display = 'none';
-                dd.style.display = 'none';
-            }
         });
     }
 
@@ -722,38 +697,89 @@ document.addEventListener('DOMContentLoaded', () => {
             if (def && !tip.querySelector('.tooltip-text')) {
                 const span = document.createElement('span');
                 span.classList.add('tooltip-text');
-                span.innerHTML = `${def.text} <span class="ref">${def.ref}</span>`;
+                const glossaryLink = `
+                    <a href="#glossary?term=${encodeURIComponent(key)}" class="glossary-link">
+                        Im Glossar nachschlagen &rarr;
+                    </a>`;
+                span.innerHTML = `${def.text} <span class="ref">${def.ref}</span> ${glossaryLink}`;
                 tip.appendChild(span);
             }
         });
     }
+    
+    function handleGlossarySearch() {
+        const searchTerm = glossarySearch.value.toLowerCase();
+        const terms = glossaryList.querySelectorAll('dt');
+        terms.forEach(dt => {
+            const dd = dt.nextElementSibling;
+            const termText = dt.textContent.toLowerCase();
+            const defText = dd.textContent.toLowerCase();
+            const isVisible = termText.includes(searchTerm) || defText.includes(searchTerm);
+            dt.style.display = isVisible ? '' : 'none';
+            dd.style.display = isVisible ? '' : 'none';
+        });
+    }
+    
+    function highlightGlossaryTerm(term) {
+        // Remove previous highlight
+        glossaryList.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+        
+        const dt = glossaryList.querySelector(`dt[data-term="${term.toLowerCase()}"]`);
+        if (dt) {
+            const dd = dt.nextElementSibling;
+            dt.classList.add('highlight');
+            dd.classList.add('highlight');
+            dt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
 
-    window.addEventListener('hashchange', handleRouting);
-    glossarySearch.addEventListener('input', filterGlossary);
+    // --- Event Listeners ---
+    window.addEventListener('popstate', handleRouting); // Handles back/forward button clicks
 
-    mainContent.addEventListener('click', (e) => {
+    // Delegate clicks for nav, tasks, and why-buttons
+    document.body.addEventListener('click', (e) => {
+        // Nav Links
+        if (e.target.matches('nav a')) {
+            e.preventDefault();
+            history.pushState(null, '', e.target.href);
+            handleRouting();
+        }
+        // Task Cards
         if (e.target.matches('.task-card')) {
             const taskId = e.target.dataset.task;
-            window.location.hash = `#task-${taskId}`;
+            history.pushState(null, '', `#task-${taskId}`);
+            handleRouting();
         }
+        // Why Buttons
         if (e.target.matches('.why-button')) {
             const explanation = e.target.dataset.explanation;
             document.getElementById('modal-text').innerHTML = explanation;
             modal.style.display = 'flex';
         }
+        // Back Button
+        if (e.target.matches('.back-button')) {
+             e.preventDefault();
+             history.pushState(null, '', e.target.href);
+             handleRouting();
+        }
+        // Glossary links inside tooltips
+        if (e.target.matches('.glossary-link')) {
+             e.preventDefault();
+             history.pushState(null, '', e.target.href);
+             handleRouting();
+        }
     });
 
-    closeModal.onclick = () => {
-        modal.style.display = 'none';
-    };
-
+    closeModal.onclick = () => modal.style.display = 'none';
     window.onclick = (e) => {
         if (e.target == modal) {
             modal.style.display = 'none';
         }
     };
     
-    // Initial Load
+    glossarySearch.addEventListener('input', handleGlossarySearch);
+    
+    // --- Initial Load ---
     loadGlossary();
     handleRouting();
 });
