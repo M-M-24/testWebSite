@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktiver Lernhelfer: Algebra SS 2025</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #e67e22; /* Changed accent for a different feel */
+            --accent-hover-color: #d35400;
+            --background-color: #f7f9f9;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.7;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+
+        nav {
+            background-color: var(--secondary-color);
+            padding: 0.5rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 5px;
+            margin: 0 10px;
+        }
+
+        nav a:hover, nav a.active {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Home Page Styles */
+        #home-page h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        #home-page p {
+            font-size: 1.1em;
+            margin-bottom: 2em;
+        }
+
+        .task-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .task-card {
+            background: var(--card-bg);
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--box-shadow);
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        /* Task Page Styles */
+        .task-grid {
+            display: grid;
+            grid-template-columns: 3fr 7fr;
+            gap: 25px;
+            width: 100%;
+        }
+
+        .col {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        .col h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--background-color);
+            padding-bottom: 10px;
+        }
+
+        #deep-dive-col .step {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-left: 4px solid var(--accent-color);
+            background-color: #f8f9fa;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        #deep-dive-col h4 {
+            color: var(--secondary-color);
+            margin-top: 0;
+        }
+
+        /* Interactive Elements */
+        .tooltip {
+            border-bottom: 2px dotted var(--accent-color);
+            cursor: help;
+            position: relative;
+            font-weight: bold;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 320px;
+            background-color: var(--secondary-color);
+            color: #fff;
+            text-align: left;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -160px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        .tooltip .tooltip-text .ref {
+            display: block;
+            margin-top: 10px;
+            font-style: italic;
+            color: #bdc3c7;
+            font-size: 0.9em;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .why-button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .why-button:hover {
+            background-color: var(--accent-hover-color);
+        }
+        
+        /* Modal for Explanations */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 60%;
+            max-width: 800px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: black;
+        }
+        
+        .modal-content blockquote {
+            background: #f9f9f9;
+            border-left: 5px solid #ccc;
+            margin: 1em 0;
+            padding: 0.5em 10px;
+            font-style: italic;
+        }
+        .modal-content blockquote p {
+            margin: 0;
+        }
+        
+        /* Glossary Styles */
+        #glossary-page {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        #glossary-list dt {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-top: 1.2rem;
+            font-size: 1.2em;
+        }
+        #glossary-list dd {
+            margin-left: 2rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .ref {
+            font-style: italic;
+            color: #777;
+        }
+
+        code, .math {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #e8e8e8;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+        
+        .back-button {
+            display: block;
+            margin-bottom: 20px;
+            padding: 8px 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            width: fit-content;
+        }
+        .back-button:hover {
+            background-color: var(--primary-color);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Algebra SS 2025</h1>
+        <p>Interaktiver Lernhelfer zu Übungsblatt 2</p>
+    </header>
+
+    <nav>
+        <a href="#home" class="nav-link active">Übersicht</a>
+        <a href="#glossary" class="nav-link">Glossar</a>
+    </nav>
+
+    <main>
+        <div id="home-page" class="page active">
+            <h2>Willkommen!</h2>
+            <p>Diese Website wurde entwickelt, um Ihnen beim Verstehen der Übungsaufgaben zur Algebra zu helfen. Statt nur die Lösungen zu lesen, können Sie hier jeden Schritt interaktiv nachvollziehen, Definitionen nachschlagen und die zugrundeliegende Theorie direkt aus dem Skript einsehen.</p>
+            <p>Wählen Sie eine Aufgabe aus, um zu beginnen:</p>
+            <div class="task-list">
+                <div class="task-card" data-task="5">Aufgabe 5</div>
+                <div class="task-card" data-task="6">Aufgabe 6</div>
+                <div class="task-card" data-task="7">Aufgabe 7</div>
+                <div class="task-card" data-task="8">Aufgabe 8</div>
+            </div>
+        </div>
+
+        <div id="task-page" class="page">
+            <a href="#home" class="back-button">&larr; Zurück zur Übersicht</a>
+            <div class="task-grid">
+                <div id="problem-col" class="col">
+                    <h3>Aufgabenstellung</h3>
+                    <div id="problem-content"></div>
+                </div>
+                <div id="deep-dive-col" class="col">
+                    <h3>Interaktiver Deep Dive</h3>
+                    <div id="deep-dive-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="glossary-page" class="page">
+            <a href="#home" class="back-button">&larr; Zurück zur Übersicht</a>
+            <h2>Glossar</h2>
+            <p>Eine Sammlung aller wichtigen Begriffe mit Definitionen und Verweisen zum Skript.</p>
+            <dl id="glossary-list"></dl>
+        </div>
+    </main>
+
+    <div id="explanation-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div id="modal-text"></div>
+        </div>
+    </div>
+
+<script>
+const tasks = {
+    '5': {
+        problemHTML: `
+            <p>Sei L/K eine Körpererweiterung. Wir definieren den algebraischen Abschluss von K in L als Alg<sub>K</sub>(L) := {x ∈ L | x ist algebraisch über K}.</p>
+            <ol>
+                <li>Zeigen Sie, dass Alg<sub>K</sub>(L) ein Teilkörper von L ist.</li>
+                <li>Es sei L = ℚ(√5)(X)[Y]/(Y³ − X² − X).
+                    <ol type="a">
+                        <li>Zeigen Sie, dass L ein Körper ist. (Hinweis: Eisenstein Kriterium.)</li>
+                        <li>Bestimmen Sie den Erweiterungsgrad [L : ℚ(X)] von L über ℚ(X).</li>
+                        <li>* Bestimmen Sie den algebraischen Abschluss K := Alg<sub>ℚ</sub>(L) von ℚ in L.</li>
+                        <li>* Zeigen Sie, dass L/K nicht rein transzendent ist.</li>
+                    </ol>
+                </li>
+            </ol>`,
+        deepDiveHTML: `
+            <h4>Aufgabe 5.1</h4>
+            <div class="step">
+                <h4>Ziel: Zeigen, dass Alg<sub>K</sub>(L) ein Teilkörper ist.</h4>
+                <p>Nach der <span class="tooltip">Definition eines Teilkörpers</span> müssen wir die Teilkörperaxiome nachweisen:</p>
+                <ul>
+                    <li>1<sub>K</sub> ∈ Alg<sub>K</sub>(L)</li>
+                    <li>Für α, β ∈ Alg<sub>K</sub>(L) gilt α-β ∈ Alg<sub>K</sub>(L) und αβ ∈ Alg<sub>K</sub>(L).</li>
+                    <li>Für α ∈ Alg<sub>K</sub>(L), α ≠ 0, gilt α⁻¹ ∈ Alg<sub>K</sub>(L).</li>
+                </ul>
+            </div>
+            <div class="step">
+                <h4>Schritt 1: Abgeschlossenheit unter Addition & Multiplikation</h4>
+                <p>Seien α, β ∈ Alg<sub>K</sub>(L). Das bedeutet, α und β sind <span class="tooltip">algebraisch über K</span>.</p>
+                <p>Betrachte die Körpererweiterung K(α, β). Da α und β algebraisch über K sind, ist der Erweiterungsgrad [K(α, β) : K] endlich.<button class="why-button" data-explanation="Dies folgt aus einer Kombination von <b>Satz 1.16(ii)</b> und dem <b>Gradsatz (Satz 1.10)</b>.<blockquote><p><b>Satz 1.16(ii):</b> Ist E = K(α₁, ..., αₙ) mit αᵢ algebraisch, so ist [E : K] < ∞.</p></blockquote><i>Anwendung:</i> Da α und β algebraisch sind, ist die Erweiterung K(α,β) endlich über K. Der Gradsatz [K(α,β):K] = [K(α,β):K(α)] ⋅ [K(α):K] verdeutlicht dies: [K(α):K] ist endlich, und da β auch über K(α) algebraisch ist, ist auch [K(α,β):K(α)] endlich. Ihr Produkt ist endlich."></button></p>
+                <p>Jedes Element einer endlichen Körpererweiterung ist algebraisch.<button class="why-button" data-explanation="Das ist der Inhalt von <b>Satz 1.16(i)</b>.<blockquote><p><b>Satz 1.16(i):</b> Ist [E : K] < ∞ so ist (E/K) algebraisch.</p></blockquote><i>Begründung:</i> Sei γ ∈ E. Da E ein endlich-dimensionaler K-Vektorraum ist, muss die unendliche Folge 1, γ, γ², ... linear abhängig sein. Diese lineare Abhängigkeit liefert ein Polynom in K[x] mit Nullstelle γ, was per Definition bedeutet, dass γ algebraisch ist."></button></p>
+                <p>Da α+β und αβ Elemente von K(α, β) sind, sind sie also auch algebraisch über K. Somit gilt α+β, αβ ∈ Alg<sub>K</sub>(L).</p>
+            </div>
+            <div class="step">
+                <h4>Schritt 2: Abgeschlossenheit unter Inversen</h4>
+                <p>Sei α ∈ Alg<sub>K</sub>(L), α ≠ 0. Dann ist α Nullstelle eines Polynoms p(X) = c<sub>n</sub>X<sup>n</sup> + ... + c<sub>1</sub>X + c<sub>0</sub> in K[X]. Wir können annehmen, dass c<sub>0</sub> ≠ 0 ist (sonst wäre p nicht das Minimalpolynom). <br>Dann ist p(α) = 0. Teilen wir die Gleichung durch α<sup>n</sup> (was erlaubt ist, da α ≠ 0), erhalten wir: <br><code class="math">c_n + c_{n-1}(1/α) + ... + c_0(1/α)^n = 0</code>.<br>Das bedeutet, α⁻¹ ist eine Nullstelle des Polynoms <code class="math">q(Y) = c_0Y^n + ... + c_n ∈ K[Y]</code>. Daher ist α⁻¹ algebraisch über K und liegt somit in Alg<sub>K</sub>(L).</p>
+            </div>
+            <h4>Aufgabe 5.2.a</h4>
+             <div class="step">
+                <h4>Ziel: Zeigen, dass L ein Körper ist.</h4>
+                <p>L ist definiert als <code class="math">Q(√5)(X)[Y]/(Y³ − X² − X)</code>. Dies ist genau dann ein Körper, wenn das Polynom <code class="math">P(Y) = Y³ - (X² + X)</code> irreduzibel über dem Körper <code class="math">F = Q(√5)(X)</code> ist.</p>
+                <p>Wir verwenden das <span class="tooltip">Eisenstein-Kriterium</span>. <br>Wir betrachten das Polynom als Element von <code class="math">R[Y]</code>, wobei <code class="math">R = Q(√5)[X]</code> ein Hauptidealring (und damit ein UFD) ist. Der Quotientenkörper von R ist F.</p>
+                <p>Wähle das Primelement <code class="math">p = X</code> in R. Das Polynom <code class="math">P(Y) = Y³ - X(X+1)</code> hat Koeffizienten in R. Wir prüfen die Bedingungen:</p>
+                <ul>
+                    <li>Der Leitkoeffizient ist 1. <code class="math">p = X</code> teilt nicht 1. (✓)</li>
+                    <li>Alle weiteren Koeffizienten bis auf den konstanten Term sind 0 und werden von <code class="math">X</code> geteilt. (✓)</li>
+                    <li>Der konstante Term ist <code class="math">-X(X+1)</code>. <code class="math">p = X</code> teilt diesen Term. (✓)</li>
+                    <li><code class="math">p² = X²</code> teilt <b>nicht</b> den konstanten Term <code class="math">-X(X+1) = -X² - X</code>. (✓)</li>
+                </ul>
+                <p>Alle Bedingungen sind erfüllt. Also ist P(Y) irreduzibel über F. Somit ist L ein Körper.</p>
+            </div>
+            <h4>Aufgabe 5.2.b</h4>
+            <div class="step">
+                <h4>Ziel: Bestimme [L : ℚ(X)].</h4>
+                <p>Wir verwenden den <span class="tooltip">Gradsatz</span> für den Körperturm <code class="math">L ⊃ ℚ(√5)(X) ⊃ ℚ(X)</code>.</p>
+                <p><b>1. Grad [L : ℚ(√5)(X)]:</b><br>
+                Wie in Teil a) gezeigt, ist <code class="math">P(Y) = Y³ - X² - X</code> ein irreduzibles Polynom vom Grad 3 über <code class="math">ℚ(√5)(X)</code>. Da L durch Adjunktion einer Nullstelle dieses Polynoms entsteht, ist der Grad 3.</p>
+                <p><b>2. Grad [ℚ(√5)(X) : ℚ(X)]:</b><br>
+                Dieser Körper entsteht durch Adjunktion von <code class="math">√5</code> zu <code class="math">ℚ(X)</code>. Das Minimalpolynom von <code class="math">√5</code> über ℚ ist <code class="math">t²-5</code>. Dieses Polynom ist auch über <code class="math">ℚ(X)</code> irreduzibel, da <code class="math">√5</code> keine rationale Funktion ist. Der Grad ist also 2.</p>
+                <p><b>Gesamter Grad:</b><br>
+                [L : ℚ(X)] = [L : ℚ(√5)(X)] ⋅ [ℚ(√5)(X) : ℚ(X)] = 3 ⋅ 2 = 6.</p>
+            </div>
+            `,
+    },
+    '6': {
+        problemHTML: `
+            <p>Sei E/K eine Körpererweiterung und E sei algebraisch abgeschlossen.</p>
+            <p>Zeigen Sie: Alg<sub>K</sub>(E) ist ein algebraischer Abschluss von K.</p>`,
+        deepDiveHTML: `
+            <div class="step">
+                <h4>Ziel: Zeigen, dass F := Alg<sub>K</sub>(E) ein algebraischer Abschluss von K ist.</h4>
+                <p>Nach der <span class="tooltip">Definition des algebraischen Abschlusses</span> müssen wir zwei Dinge zeigen:</p>
+                <ol>
+                    <li>Die Erweiterung F/K ist algebraisch.</li>
+                    <li>Der Körper F ist algebraisch abgeschlossen.</li>
+                </ol>
+            </div>
+            <div class="step">
+                <h4>1. F/K ist algebraisch</h4>
+                <p>Sei α ∈ F = Alg<sub>K</sub>(E). Per Definition von Alg<sub>K</sub>(E) bedeutet dies, dass α ein Element aus E ist, das algebraisch über K ist. Da dies für jedes Element aus F gilt, ist die gesamte Erweiterung F/K per Definition algebraisch. Dieser Teil ist trivial.</p>
+            </div>
+            <div class="step">
+                <h4>2. F ist algebraisch abgeschlossen</h4>
+                <p>Sei <code class="math">p(x)</code> ein beliebiges, nicht-konstantes Polynom aus F[x]. Wir müssen zeigen, dass p(x) eine Nullstelle in F hat.</p>
+                <p>Da <code class="math">F ⊆ E</code>, ist <code class="math">p(x)</code> auch ein Polynom in E[x]. Nach Voraussetzung ist E <span class="tooltip">algebraisch abgeschlossen</span>, also besitzt p(x) eine Nullstelle <code class="math">z ∈ E</code>.</p>
+                <p><b>Nun müssen wir nur noch zeigen, dass dieses <code class="math">z</code> auch in F liegt.</b> Dazu müssen wir nachweisen, dass <code class="math">z</code> algebraisch über K ist.</p>
+                <p>Wir haben den Körperturm <code class="math">K ⊆ F ⊆ F(z)</code>.
+                <ul>
+                    <li>Die Erweiterung F/K ist algebraisch (wie in Schritt 1 gezeigt).</li>
+                    <li>Die Erweiterung F(z)/F ist algebraisch, da z eine Nullstelle von p(x)∈F[x] ist.</li>
+                </ul>
+                <p>Da Algebraizität transitiv ist, ist auch die Gesamterweiterung F(z)/K algebraisch.<button class="why-button" data-explanation="Das ist <b>Lemma 1.17 (Transitivität der Algebraizität)</b>.<blockquote><p>Ist (L/K) algebraisch und (F/L) algebraisch, so ist (F/K) algebraisch.</p></blockquote><i>Beweisidee:</i> Ein Element α ∈ F ist Nullstelle eines Polynoms mit Koeffizienten in L. Diese Koeffizienten sind selbst algebraisch über K. Man betrachtet dann die Erweiterung, die von α und all diesen Koeffizienten erzeugt wird. Diese ist endlich über K, also ist α algebraisch über K."></button></p>
+                <p>Das bedeutet, jedes Element in F(z), insbesondere <code class="math">z</code> selbst, ist algebraisch über K. Da <code class="math">z</code> außerdem in E liegt, erfüllt es die Definition von F: <code class="math">z ∈ {x ∈ E | x ist algebraisch über K} = F</code>.</p>
+                <p>Somit hat p(x) eine Nullstelle in F, und F ist algebraisch abgeschlossen.</p>
+            </div>`,
+    },
+    '7': {
+        problemHTML: `
+            <p>Bestimmen Sie den Zerfällungskörper E von f ∈ ℚ[X] sowie [E : ℚ] im Fall</p>
+            <ol>
+                <li>f(X) = X³ − 1.</li>
+                <li>f(X) = X³ − 2.</li>
+                <li>f(X) = X³ − 3X + 1.<br>(Hinweis: Zeigen Sie: Wenn z eine Nullstelle von f ist, so sind auch z² − 2 und −z² + z + 2 Nullstellen von f)</li>
+            </ol>`,
+        deepDiveHTML: `
+            <h4>Aufgabe 7.1: f(X) = X³ − 1</h4>
+            <div class="step">
+                <p>Die Nullstellen sind die dritten Einheitswurzeln. <code class="math">f(X) = (X-1)(X²+X+1)</code>.</p>
+                <p>Nullstellen: <code class="math">x_1 = 1</code>, <code class="math">x_2 = e^{2πi/3} = ζ₃</code>, und <code class="math">x_3 = e^{4πi/3} = ζ₃²</code>.</p>
+                <p>Der <span class="tooltip">Zerfällungskörper</span> E ist der kleinste Körper, der alle Nullstellen enthält. <code class="math">E = ℚ(1, ζ₃, ζ₃²) = ℚ(ζ₃)</code>.</p>
+                <p>Der Grad ist <code class="math">[E : ℚ] = [ℚ(ζ₃) : ℚ]</code>. Das Minimalpolynom von ζ₃ über ℚ ist das 3. Kreisteilungspolynom <code class="math">Φ₃(X) = X²+X+1</code>. <br>
+                Daher ist der Grad <code class="math">[E : ℚ] = deg(Φ₃) = 2</code>.</p>
+            </div>
+            <h4>Aufgabe 7.2: f(X) = X³ − 2</h4>
+            <div class="step">
+                <p>Die Nullstellen sind <code class="math">∛2</code>, <code class="math">∛2⋅ζ₃</code>, und <code class="math">∛2⋅ζ₃²</code>.</p>
+                <p>Der Zerfällungskörper E muss alle diese Nullstellen enthalten. Er muss also sowohl <code class="math">∛2</code> als auch die dritte Einheitswurzel <code class="math">ζ₃ = (∛2⋅ζ₃) / ∛2</code> enthalten. <br>Also ist <code class="math">E = ℚ(∛2, ζ₃)</code>.</p>
+                <p>Wir verwenden den <span class="tooltip">Gradsatz</span> für den Turm <code class="math">ℚ(∛2, ζ₃) ⊃ ℚ(∛2) ⊃ ℚ</code>:<br>
+                <code class="math">[E : ℚ] = [ℚ(∛2, ζ₃) : ℚ(∛2)] ⋅ [ℚ(∛2) : ℚ]</code></p>
+                <ul>
+                    <li><code class="math">[ℚ(∛2) : ℚ] = 3</code>, da <code class="math">X³-2</code> irreduzibel über ℚ ist (<span class="tooltip">Eisenstein-Kriterium</span> mit p=2).</li>
+                    <li>Für <code class="math">[ℚ(∛2, ζ₃) : ℚ(∛2)]</code> betrachten wir das Minimalpolynom von ζ₃ über <code class="math">ℚ(∛2)</code>. Es ist <code class="math">X²+X+1</code>. Da <code class="math">ℚ(∛2)</code> ein rein reeller Körper ist und die Nullstellen von <code class="math">X²+X+1</code> komplex sind, kann das Polynom keine Nullstelle in <code class="math">ℚ(∛2)</code> haben. Es bleibt also irreduzibel und der Grad ist 2.</li>
+                </ul>
+                <p>Der Gesamtgrad ist <code class="math">[E : ℚ] = 2 ⋅ 3 = 6</code>.</p>
+            </div>
+            <h4>Aufgabe 7.3: f(X) = X³ − 3X + 1</h4>
+            <div class="step">
+                <p>Das Polynom ist irreduzibel über ℚ (nach rationalem Nullstellentest gibt es keine linearen Faktoren).</p>
+                <p>Sei <code class="math">z</code> eine Nullstelle. Laut Hinweis ist auch <code class="math">z² - 2</code> eine Nullstelle. Da alle Nullstellen durch Polynome in <code class="math">z</code> ausgedrückt werden können, liegen alle Nullstellen bereits im Körper <code class="math">ℚ(z)</code>.</p>
+                <p>Dies bedeutet, dass <code class="math">ℚ(z)</code> bereits der Zerfällungskörper ist. Eine solche Erweiterung nennt man <span class="tooltip">normal</span>. <br>
+                <code class="math">E = ℚ(z)</code>.</p>
+                <p>Der Grad ist der Grad des Minimalpolynoms von z, also <code class="math">deg(f)</code>.<br>
+                <code class="math">[E : ℚ] = [ℚ(z) : ℚ] = 3</code>.</p>
+            </div>`,
+    },
+    '8': {
+        problemHTML: `
+            <p>Seien K(α)/K und K(β)/K zwei einfache algebraische Erweiterungen. Zeigen Sie:</p>
+            <ol>
+                <li>μ<sub>α,K</sub> ist genau dann irreduzibel über K(β) wenn μ<sub>β,K</sub> irreduzibel über K(α) ist.</li>
+                <li>Sind die Grade von μ<sub>α,K</sub> und μ<sub>β,K</sub> teilerfremd, so ist μ<sub>α,K</sub> über K(β) irreduzibel.</li>
+            </ol>`,
+        deepDiveHTML: `
+            <h4>Aufgabe 8.1</h4>
+            <div class="step">
+                <h4>Schlüsselidee: Gradsatz für K(α, β)</h4>
+                <p>Der Grad des Kompositums K(α, β) über K kann auf zwei Wegen berechnet werden:</p>
+                <ul>
+                    <li><code class="math">[K(α,β) : K] = [K(α,β) : K(β)] ⋅ [K(β) : K]</code></li>
+                    <li><code class="math">[K(α,β) : K] = [K(α,β) : K(α)] ⋅ [K(α) : K]</code></li>
+                </ul>
+                <p>Ein Minimalpolynom μ<sub>x,F</sub> ist genau dann irreduzibel über einer Erweiterung F', wenn es das Minimalpolynom von x über F' bleibt.<button class="why-button" data-explanation="Das Minimalpolynom μ<sub>x,F'</sub> über dem größeren Körper F' muss das Minimalpolynom μ<sub>x,F</sub> über dem kleineren Körper F teilen. Wenn μ<sub>x,F</sub> über F' irreduzibel bleibt, kann es keinen echten Teiler haben. Da beide Polynome normiert sind, müssen sie gleich sein."></button></p>
+                <p>Daher haben wir die Äquivalenz:<br>
+                μ<sub>α,K</sub> ist irreduzibel über K(β) ⇔ <code class="math">[K(α,β) : K(β)] = deg(μ<sub>α,K</sub>) = [K(α) : K]</code></p>
+                <p>Wenn wir dies in die Gleichsetzung der beiden Gradsatz-Formeln einsetzen, ergibt sich:<br>
+                <code class="math">[K(α) : K] ⋅ [K(β) : K] = [K(α,β) : K(α)] ⋅ [K(α) : K]</code><br>
+                ⇔ <code class="math">[K(β) : K] = [K(α,β) : K(α)]</code></p>
+                <p>Diese letzte Gleichung ist aber genau die Bedingung dafür, dass μ<sub>β,K</sub> irreduzibel über K(α) ist. Die Äquivalenz ist somit bewiesen.</p>
+            </div>
+            <h4>Aufgabe 8.2</h4>
+            <div class="step">
+                <h4>Schlüsselidee: Teilerfremdheit der Grade</h4>
+                <p>Sei <code class="math">n = [K(α):K]</code> und <code class="math">m = [K(β):K]</code>, mit <code class="math">ggT(n, m) = 1</code>.</p>
+                <p>Aus dem Gradsatz wissen wir, dass <code class="math">n = [K(α):K]</code> ein Teiler von <code class="math">[K(α,β):K]</code> ist. <br>Ebenso ist <code class="math">m = [K(β):K]</code> ein Teiler von <code class="math">[K(α,β):K]</code>.</p>
+                <p>Da n und m teilerfremd sind, muss auch ihr Produkt <code class="math">n ⋅ m</code> ein Teiler von <code class="math">[K(α,β):K]</code> sein. Also:
+                <br><code class="math">[K(α,β) : K] ≥ n ⋅ m</code>.</p>
+                <p>Andererseits ist der Grad von α über K(β) höchstens so groß wie der Grad von α über K:<br>
+                <code class="math">[K(α,β) : K(β)] ≤ [K(α) : K] = n</code>.</p>
+                <p>Daraus folgt für den Gesamtgrad:<br>
+                <code class="math">[K(α,β) : K] = [K(α,β) : K(β)] ⋅ [K(β) : K] ≤ n ⋅ m</code>.</p>
+                <p>Zusammen ergibt sich: <code class="math">[K(α,β) : K] = n ⋅ m</code>.</p>
+                <p>Setzen wir dies in die Gradsatzgleichung ein:<br>
+                <code class="math">n ⋅ m = [K(α,β) : K(β)] ⋅ m</code> ⇒ <code class="math">[K(α,β) : K(β)] = n</code>.</p>
+                <p>Da der Grad der Erweiterung dem Grad des ursprünglichen Minimalpolynoms entspricht, muss μ<sub>α,K</sub> über K(β) irreduzibel sein.</p>
+            </div>`,
+    },
+};
+
+const definitions = {
+    'definition eines teilkörpers': {
+        text: 'Eine Teilmenge U eines Körpers L heißt Teilkörper, wenn U selbst mit den von L induzierten Operationen ein Körper ist. Das bedeutet, 1 ∈ U, und U ist abgeschlossen unter Addition, Multiplikation und der Bildung von multiplikativen Inversen für Elemente ≠ 0.',
+        ref: '(Vgl. Def. 1.9, S. 8)',
+    },
+    'algebraisch über k': {
+        text: 'Ein Element a ∈ L heißt algebraisch über K, wenn es Nullstelle eines von Null verschiedenen Polynoms p(x) ∈ K[x] ist. Andernfalls heißt es transzendent.',
+        ref: '(Siehe Bem. 1.14, S. 10)',
+    },
+    'eisenstein-kriterium': {
+        text: 'Sei R ein Integritätsring und f(X) ∈ R[X]. Wenn es ein Primelement p ∈ R gibt, so dass p alle Koeffizienten von f außer dem Leitkoeffizienten teilt, und p² nicht den konstanten Term teilt, dann ist f irreduzibel über dem Quotientenkörper von R.',
+        ref: '(Eisensteinsches Irreduzibilitätskriterium)',
+    },
+    'gradsatz': {
+        text: 'Für einen Turm von Körpererweiterungen F ⊃ E ⊃ K gilt: [F:K] = [F:E] * [E:K].',
+        ref: '(Satz 1.10, S. 8)',
+    },
+    'definition des algebraischen abschlusses': {
+        text: "Ein Erweiterungskörper E' von K heißt algebraischer Abschluss von K, wenn (i) E' algebraisch abgeschlossen ist und (ii) die Erweiterung E'/K algebraisch ist.",
+        ref: '(Def. 1.30, S. 14)',
+    },
+    'algebraisch abgeschlossen': {
+        text: 'Ein Körper K heißt algebraisch abgeschlossen, wenn jedes nicht-konstante Polynom in K[x] eine Nullstelle in K hat.',
+        ref: '(Def. 1.28, S. 14)',
+    },
+    'zerfällungskörper': {
+        text: 'Der Zerfällungskörper eines Polynoms f(t) über K ist der kleinste Erweiterungskörper E von K, über dem f(t) in Linearfaktoren zerfällt.',
+        ref: '(Def. 1.24, S. 13)',
+    },
+    'normal': {
+        text: 'Eine algebraische Erweiterung E/K heißt normal, wenn jedes irreduzible Polynom in K[t], das eine Nullstelle in E hat, bereits in E[t] in Linearfaktoren zerfällt.',
+        ref: '(Satz 1.50, S. 20)'
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const mainContent = document.querySelector('main');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const modal = document.getElementById('explanation-modal');
+    const closeModal = document.querySelector('.close-button');
+
+    function handleRouting() {
+        const hash = window.location.hash || '#home';
+        
+        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        navLinks.forEach(link => link.classList.remove('active'));
+
+        const activePage = document.querySelector(hash);
+        const activeLink = document.querySelector(`nav a[href="${hash}"]`);
+
+        if (activePage) {
+            activePage.classList.add('active');
+        } else {
+            const taskMatch = hash.match(/^#task-(\d+)$/);
+            if (taskMatch) {
+                const taskId = taskMatch[1];
+                document.getElementById('task-page').classList.add('active');
+                loadTask(taskId);
+            } else {
+                 document.getElementById('home-page').classList.add('active');
+                 document.querySelector('nav a[href="#home"]').classList.add('active');
+            }
+        }
+        
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+    }
+
+    function loadTask(taskId) {
+        const taskData = tasks[taskId];
+        if (!taskData) return;
+
+        document.getElementById('problem-content').innerHTML = taskData.problemHTML;
+        document.getElementById('deep-dive-content').innerHTML = taskData.deepDiveHTML;
+        
+        initializeTooltips();
+    }
+
+    function loadGlossary() {
+        const glossaryList = document.getElementById('glossary-list');
+        glossaryList.innerHTML = '';
+        const sortedKeys = Object.keys(definitions).sort((a, b) => a.localeCompare(b));
+        
+        sortedKeys.forEach(key => {
+            const def = definitions[key];
+            const dt = document.createElement('dt');
+            dt.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+            
+            const dd = document.createElement('dd');
+            dd.innerHTML = `${def.text} <span class="ref">${def.ref}</span>`;
+            
+            glossaryList.appendChild(dt);
+            glossaryList.appendChild(dd);
+        });
+    }
+
+    function initializeTooltips() {
+         document.querySelectorAll('.tooltip').forEach(tip => {
+            const key = tip.textContent.toLowerCase();
+            const def = definitions[key];
+            if (def && !tip.querySelector('.tooltip-text')) {
+                const span = document.createElement('span');
+                span.classList.add('tooltip-text');
+                span.innerHTML = `${def.text} <span class="ref">${def.ref}</span>`;
+                tip.appendChild(span);
+            }
+        });
+    }
+
+    window.addEventListener('hashchange', handleRouting);
+
+    mainContent.addEventListener('click', (e) => {
+        if (e.target.matches('.task-card')) {
+            const taskId = e.target.dataset.task;
+            window.location.hash = `#task-${taskId}`;
+        }
+        if (e.target.matches('.why-button')) {
+            const explanation = e.target.dataset.explanation;
+            document.getElementById('modal-text').innerHTML = explanation;
+            modal.style.display = 'flex';
+        }
+    });
+
+    closeModal.onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    window.onclick = (e) => {
+        if (e.target == modal) {
+            modal.style.display = 'none';
+        }
+    };
+    
+    // Initial Load
+    loadGlossary();
+    handleRouting();
+});
+
+</script>
+</body>
+</html>
